@@ -1,21 +1,24 @@
-import { scaleBand, scaleLinear, max, format } from "d3";
+import { extent, format, scaleLinear } from "d3";
 import React from "react";
+import "./App.css";
 import { AxisBottom } from "./AxisBottom";
 import { AxisLeft } from "./AxisLeft";
 import { Marks } from "./Marks";
 import { useData } from "./useData";
-import "./App.css";
 
 export type Data = {
-  val: string;
-  count: number;
+  sepal_length: number;
+  sepal_width: number;
+  petal_length: number;
+  petal_width: number;
+  species: string;
 };
 
 const width = 960;
 const height = 500;
-const margin = { top: 20, bottom: 60, left: 200, right: 30 };
+const margin = { top: 20, bottom: 30, left: 100, right: 30 };
 const xAxisLabelOffset = 50;
-const yAxisLabelOffset = 120;
+const yAxisLabelOffset = 45;
 
 const App = () => {
   const data = useData<Data[]>();
@@ -27,34 +30,39 @@ const App = () => {
     return <div>Loading</div>;
   }
 
-  const yValue = (d: Data) => d.val;
-  const xValue = (d: Data) => d.count;
+  const xValue = (d: Data) => d.sepal_length;
+  const xAxisLabel = "Sepal Length";
 
-  const yScale = scaleBand()
-    .domain(data.map(yValue))
-    .range([0, innerHeight])
-    .paddingInner(0.15);
+  const yValue = (d: Data) => d.sepal_width;
+  const yAxisLabel = "Sepal Width";
 
   const xScale = scaleLinear()
-    .domain([0, max(data, xValue) || 10])
-    .range([0, innerWidth]);
+    .domain(extent(data, xValue) as [number, number])
+    .range([0, innerWidth])
+    .nice();
+
+  const yScale = scaleLinear()
+    .domain(extent(data, yValue) as [number, number])
+    .range([0, innerHeight]);
 
   return (
     <svg width={width} height={height}>
       <g transform={`translate(${margin.left}, ${margin.top})`}>
         <AxisBottom
+          tickOffset={10}
           innerHeight={innerHeight}
           xScale={xScale}
-          tickFormat={format("d")}
+          tickFormat={format(".2f")}
         />
-        <AxisLeft yScale={yScale} />
+        <AxisLeft yScale={yScale} innerWidth={innerWidth} tickOffset={5} />
         <text
           className="axis-label"
-          x={-yAxisLabelOffset}
-          y={innerHeight / 2}
           style={{ textAnchor: "middle" }}
+          transform={`translate(${-yAxisLabelOffset}, ${
+            innerHeight / 2
+          }) rotate(-90)`}
         >
-          Date
+          {yAxisLabel}
         </text>
         <text
           className="axis-label"
@@ -62,7 +70,7 @@ const App = () => {
           y={innerHeight + xAxisLabelOffset}
           style={{ textAnchor: "middle" }}
         >
-          Count
+          {xAxisLabel}
         </text>
         <Marks
           data={data}
@@ -70,6 +78,7 @@ const App = () => {
           yScale={yScale}
           xValue={xValue}
           yValue={yValue}
+          circleRadius={7}
         />
       </g>
     </svg>

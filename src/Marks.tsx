@@ -1,26 +1,26 @@
-import { ScaleLinear, ScaleBand } from "d3";
+import { ScaleLinear } from "d3";
 import { Data } from "./App";
 
 export const Marks: React.FC<{
   data: Data[];
   xScale: ScaleLinear<number, number, never>;
-  yScale: ScaleBand<string>;
+  yScale: ScaleLinear<number, number, never>;
   xValue: (d: Data) => number;
-  yValue: (d: Data) => string;
-}> = ({ data, xScale, yScale, xValue, yValue }) => {
+  yValue: (d: Data) => number;
+  circleRadius?: number;
+}> = ({ data, xScale, yScale, xValue, yValue, circleRadius = 10 }) => {
   return (
     <>
-      {data.map((d) => (
-        <rect
+      {data.map((d, i) => (
+        <circle
+          key={`${d.species}_${i}`}
           className="mark"
-          key={yValue(d)}
-          x={0}
-          y={yScale(yValue(d))}
-          width={xScale(xValue(d))}
-          height={yScale.bandwidth()}
+          cx={xScale(xValue(d))}
+          cy={yScale(yValue(d))}
+          r={circleRadius}
         >
           <title>{xValue(d)}</title>
-        </rect>
+        </circle>
       ))}
     </>
   );
