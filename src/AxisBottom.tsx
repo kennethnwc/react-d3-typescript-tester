@@ -1,29 +1,21 @@
-import { ScaleBand } from "d3";
-import React from "react";
+import { axisBottom, ScaleTime, select } from "d3";
+import React, { useEffect, useRef } from "react";
 
 type Props = {
-  xScale: ScaleBand<string>;
+  xScale: ScaleTime<number, number, never>;
   innerHeight?: number;
 };
 
 export const AxisBottom: React.FC<Props> = ({ xScale, innerHeight = 100 }) => {
-  return (
-    <>
-      {xScale
-        .domain()
-        .filter((_, i) => i % 2 === 0)
-        .map((tickValue) => (
-          <g className="tick" key={tickValue}>
-            <text
-              dy=".32em"
-              style={{ textAnchor: "middle" }}
-              x={(xScale(tickValue) || 0) + xScale.bandwidth() / 2}
-              y={innerHeight + 10}
-            >
-              {tickValue}
-            </text>
-          </g>
-        ))}
-    </>
-  );
+  const ref = useRef<SVGGElement>(null);
+  const xAxis = axisBottom(xScale).ticks(5);
+
+  useEffect(() => {
+    if (ref.current) {
+      select(ref.current).append("g").call(xAxis);
+    }
+  }, [xAxis]);
+  console.log(xAxis);
+
+  return <g ref={ref} transform={`translate(0, ${innerHeight})`}></g>;
 };
