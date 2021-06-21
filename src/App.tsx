@@ -27,34 +27,34 @@ const App = () => {
     return <div>Loading</div>;
   }
 
-  const yValue = (d: Data) => d.val;
-  const xValue = (d: Data) => d.count;
+  const yValue = (d: Data) => d.count;
+  const xValue = (d: Data) => d.val;
 
-  const yScale = scaleBand()
-    .domain(data.map(yValue))
-    .range([0, innerHeight])
+  const xScale = scaleBand()
+    .domain(data.map(xValue))
+    .range([0, innerWidth])
     .paddingInner(0.15);
 
-  const xScale = scaleLinear()
-    .domain([0, max(data, xValue) || 10])
-    .range([0, innerWidth]);
+  const yScale = scaleLinear()
+    .domain([0, max(data, yValue) || 10])
+    .range([innerHeight, 0]);
 
   return (
     <svg width={width} height={height}>
       <g transform={`translate(${margin.left}, ${margin.top})`}>
-        <AxisBottom
-          innerHeight={innerHeight}
-          xScale={xScale}
+        <AxisBottom xScale={xScale} innerHeight={innerHeight} />
+        <AxisLeft
+          yScale={yScale}
+          innerWidth={innerWidth}
           tickFormat={format("d")}
         />
-        <AxisLeft yScale={yScale} />
         <text
           className="axis-label"
           x={-yAxisLabelOffset}
           y={innerHeight / 2}
           style={{ textAnchor: "middle" }}
         >
-          Date
+          Count
         </text>
         <text
           className="axis-label"
@@ -62,14 +62,15 @@ const App = () => {
           y={innerHeight + xAxisLabelOffset}
           style={{ textAnchor: "middle" }}
         >
-          Count
+          Date
         </text>
         <Marks
           data={data}
-          xScale={xScale}
+          innerHeight={innerHeight}
           yScale={yScale}
-          xValue={xValue}
+          xScale={xScale}
           yValue={yValue}
+          xValue={xValue}
         />
       </g>
     </svg>
